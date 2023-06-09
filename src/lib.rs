@@ -11,6 +11,8 @@ pub enum Error {
     Request(#[from] reqwest::Error),
 }
 
+type Result<T> = core::result::Result<T, Error>;
+
 #[derive(Debug, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub enum Side {
@@ -18,9 +20,3 @@ pub enum Side {
     Client,
 }
 
-pub struct SidePair<T> {
-    client: T,
-    server: T,
-}
-
-type Result<T> = core::result::Result<T, Error>;
