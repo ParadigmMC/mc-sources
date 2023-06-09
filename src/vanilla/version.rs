@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 
 use super::VersionType;
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug, Clone, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct VersionInfo {
     pub id: String,
@@ -12,6 +12,11 @@ pub struct VersionInfo {
     pub asset_index: PistonFile,
     pub java_version: VersionJavaInfo,
     pub libraries: Vec<PistonLibrary>,
+
+    pub downloads: VersionDownloads,
+
+    pub arguments: VersionArguments,
+    pub minecraft_arguments: String,
     
     pub compliance_level: u8,
     pub minimum_launcher_version: u8,
@@ -25,7 +30,7 @@ pub struct VersionInfo {
     pub release_time: String,
 }
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug, Clone, Deserialize, Serialize)]
 #[serde(rename_all = "snake_case")]
 pub struct VersionDownloads {
     pub client: PistonFile,
@@ -34,14 +39,20 @@ pub struct VersionDownloads {
     pub server_mappings: PistonFile,
 }
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug, Clone, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct VersionJavaInfo {
     pub major_version: u8,
     pub component: String,
 }
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct VersionArguments {
+    pub game: Vec<PistonArgument>,
+    pub jvm: Vec<PistonArgument>,
+}
+
+#[derive(Debug, Clone, Deserialize, Serialize)]
 #[serde(untagged)]
 pub enum PistonArgument {
     Global(String),
@@ -51,14 +62,14 @@ pub enum PistonArgument {
     },
 }
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug, Clone, Deserialize, Serialize)]
 #[serde(untagged)]
 pub enum MaybeVecArgument {
     Vec(Vec<String>),
     NotVec(String),
 }
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug, Clone, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct PistonLibrary {
     pub name: String,
@@ -66,7 +77,7 @@ pub struct PistonLibrary {
     pub rules: Vec<PistonRule>,
 }
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug, Clone, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 #[serde(tag = "action")]
 pub enum PistonRule {
@@ -74,7 +85,7 @@ pub enum PistonRule {
     Deny(PistonRuleConstraints),
 }
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug, Clone, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct PistonRuleConstraints {
     pub os: PistonRuleConstraintOS,
@@ -82,7 +93,7 @@ pub struct PistonRuleConstraints {
 }
 
 /* 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug, Clone, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct PistonRuleConstraintFeature {
     pub is_demo_user: bool,
@@ -91,7 +102,7 @@ pub struct PistonRuleConstraintFeature {
 
 } */
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug, Clone, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct PistonRuleConstraintOS {
     pub name: String,
@@ -99,18 +110,18 @@ pub struct PistonRuleConstraintOS {
 }
 
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct PistonArtifact {
     pub artifact: PistonFile,
 }
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug, Clone, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct LoggingInfoWrapper {
     pub client: VersionLoggingInfo,
 }
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug, Clone, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct VersionLoggingInfo {
     pub argument: String,
@@ -120,7 +131,7 @@ pub struct VersionLoggingInfo {
 }
 
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug, Clone, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct PistonFile {
     pub id: String,

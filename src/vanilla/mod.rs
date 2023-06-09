@@ -1,10 +1,10 @@
-use crate::Result;
+use crate::{Result, Error};
 
 mod manifest;
 mod version;
+mod assets;
 
-pub use crate::vanilla::{manifest::*, version::*};
-
+pub use crate::vanilla::{manifest::*, version::*, assets::*};
 
 pub async fn fetch_version_manifest(
     client: &reqwest::Client,
@@ -20,47 +20,50 @@ pub async fn fetch_version_manifest(
     Ok(version_manifest)
 }
 
-pub async fn fetch_vanilla(version: &str, client: &reqwest::Client) -> Result<reqwest::Response> {
-    let version_manifest: VersionManifest = client
-        .get("https://piston-meta.mojang.com/mc/game/version_manifest.json")
-        .send()
-        .await?
-        .error_for_status()?
-        .json()
-        .await?;
-
-    let mut target_version = version;
-
-    if target_version == "latest" {
-        target_version = &version_manifest.latest.release;
+impl VersionManifest {
+    pub fn find(self, id: &str) -> Option<VersionIndex> {
+        self.versions
+            .iter()
+            .find(|v| v.id == id).map(|v| v.clone())
     }
 
-    if target_version == "latest-snapshot" {
-        target_version = &version_manifest.latest.snapshot;
+    pub async fn fetch_latest_release(self, client: &reqwest::Client) -> Result<VersionInfo> {
+        let id = self.latest.release.clone();
+        self.fetch(&id, client).await
+    }
+    
+    pub async fn fetch_latest_snapshot(self, client: &reqwest::Client) -> Result<VersionInfo> {
+        let id = self.latest.snapshot.clone();
+        self.fetch(&id, client).await
     }
 
-    let verdata = version_manifest
-        .versions
-        .iter()
-        .find(|&v| v.id == target_version);
+    pub async fn fetch(self, id: &str, client: &reqwest::Client) -> Result<VersionInfo> {
+        self
+            .find(id)
+            .ok_or(Error::NotFound(id.to_owned()))?.fetch(client).await
+    }
+}
 
-    let Some(verdata) = verdata else {
-        bail!("Can't find the server jar for version {target_version}")
-    };
+impl VersionIndex {
+    pub async fn fetch(self, client: &reqwest::Client) -> Result<VersionInfo> {
+        Ok(client.get(self.url).send().await?.error_for_status()?.json().await?)
+    }
+}
 
-    let package_manifest: PackageManifest = client
-        .get(&verdata.url)
-        .send()
-        .await?
-        .error_for_status()?
-        .json()
-        .await?;
+impl PistonLibrary {
+    pub async fn download(self, client: &reqwest::Client) -> Result<reqwest::Response> {
+        self.downloads.download(client).await
+    }
+}
 
-    let res = client
-        .get(package_manifest.downloads.server.url)
-        .send()
-        .await?
-        .error_for_status()?;
+impl PistonArtifact {
+    pub async fn download(self, client: &reqwest::Client) -> Result<reqwest::Response> {
+        self.artifact.download(client).await
+    }
+}
 
-    Ok(res)
+impl PistonFile {
+    pub async fn download(self, client: &reqwest::Client) -> Result<reqwest::Response> {
+        Ok(client.get(self.url).send().await?.error_for_status()?)
+    }
 }
