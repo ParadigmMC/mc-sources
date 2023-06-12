@@ -3,6 +3,7 @@ use crate::Result;
 const PAPERMC_URL: &str = "https://api.papermc.io/v2";
 
 mod structs;
+mod impls;
 pub use structs::*;
 
 pub async fn fetch_papermc_projects(
@@ -38,8 +39,8 @@ pub async fn fetch_papermc_version(
     client: &reqwest::Client,
     project_id: &str,
     version: &str,
-) -> Result<PaperVersionResponse> {
-    let version_response: PaperVersionResponse = client
+) -> Result<PaperVersion> {
+    let version_response: PaperVersion = client
         .get(PAPERMC_URL.to_owned() + "/projects/" + project_id + "/" + version)
         .send()
         .await?
@@ -101,8 +102,8 @@ pub async fn fetch_papermc_version_group(
     client: &reqwest::Client,
     project_id: &str,
     family_id: &str,
-) -> Result<PaperVersionFamilyResponse> {
-    let family: PaperVersionFamilyResponse = client
+) -> Result<PaperVersionFamily> {
+    let family: PaperVersionFamily = client
         .get(PAPERMC_URL.to_owned() + "/projects/" + project_id + "/version_group/" + family_id)
         .send()
         .await?

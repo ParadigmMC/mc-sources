@@ -3,6 +3,14 @@ use std::collections::HashMap;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Deserialize, Serialize)]
+pub struct PaperVersion {
+    pub project_id: String,
+    pub project_name: String,
+    pub version: String,
+    pub builds: Vec<i32>,
+}
+
+#[derive(Debug, Deserialize, Serialize)]
 pub struct PaperBuild {
     pub project_id: String,
     pub project_name: String,
@@ -67,7 +75,7 @@ pub struct PaperVersionBuild {
 }
 
 #[derive(Debug, Deserialize, Serialize)]
-pub struct PaperVersionFamilyResponse {
+pub struct PaperVersionFamily {
     pub project_id: String,
     pub project_name: String,
     pub version_group: String,
@@ -94,10 +102,3 @@ pub struct PaperVersionFamilyBuild {
     pub downloads: HashMap<String, PaperDownload>,
 }
 
-#[derive(Debug, Deserialize, Serialize)]
-pub struct PaperVersionResponse {
-    pub project_id: String,
-    pub project_name: String,
-    pub version: String,
-    pub builds: Vec<i32>,
-}
