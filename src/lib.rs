@@ -1,7 +1,11 @@
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
 
+pub mod version;
+pub use version::{MCVersion, MCVersionReq};
 pub mod vanilla;
+
+pub mod papermc;
 
 #[derive(Error, Debug)]
 pub enum Error {
@@ -9,6 +13,8 @@ pub enum Error {
     NotFound(String),
     #[error(transparent)]
     Request(#[from] reqwest::Error),
+    #[error("{0} is an invalid MCVersion")]
+    InvalidVersion(String),
 }
 
 type Result<T> = core::result::Result<T, Error>;
