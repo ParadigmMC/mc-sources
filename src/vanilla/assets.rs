@@ -28,7 +28,7 @@ pub struct MCAsset {
 }
 
 impl MCAsset {
-    pub async fn download(self, client: reqwest::Client) -> Result<reqwest::Response> {
+    pub async fn download(self, client: &reqwest::Client) -> Result<reqwest::Response> {
         Ok(client.get(self.get_url()).send().await?)
     }
 
