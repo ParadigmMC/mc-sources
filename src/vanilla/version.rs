@@ -37,6 +37,7 @@ pub struct VersionDownloads {
     pub client_mappings: PistonFile,
     pub server: PistonFile,
     pub server_mappings: PistonFile,
+    pub windows_server: PistonFile,
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
@@ -55,18 +56,18 @@ pub struct VersionArguments {
 #[derive(Debug, Clone, Deserialize, Serialize)]
 #[serde(untagged)]
 pub enum PistonArgument {
-    Global(String),
-    WithRules {
+    Normal(String),
+    Ruled {
         rules: Vec<PistonRule>,
-        value: MaybeVecArgument,
+        value: ArgumentValue,
     },
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
 #[serde(untagged)]
-pub enum MaybeVecArgument {
-    Vec(Vec<String>),
-    NotVec(String),
+pub enum ArgumentValue {
+    Single(String),
+    Many(Vec<String>),
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
@@ -107,12 +108,17 @@ pub struct PistonRuleConstraintFeature {
 pub struct PistonRuleConstraintOS {
     pub name: String,
     pub arch: String,
+    pub version: String,
 }
 
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct PistonArtifact {
     pub artifact: PistonFile,
+
+    /// Conditional files that may be needed to be downloaded alongside the library
+    /// The HashMap key specifies a classifier as additional information for downloading files
+    pub classifiers: Option<HashMap<String, PistonFile>>,
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
@@ -134,12 +140,14 @@ pub struct VersionLoggingInfo {
 #[derive(Debug, Clone, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct PistonFile {
-    pub id: String,
     pub sha1: String,
     pub size: u64,
     pub url: String,
-
+    
+    /// 
+    pub id: Option<String>,
     pub total_size: u64,
     
-    pub path: String,
+    /// Only present on library files
+    pub path: Option<String>,
 }
