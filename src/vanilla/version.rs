@@ -141,12 +141,14 @@ pub struct VersionLoggingInfo {
 #[serde(rename_all = "camelCase")]
 pub struct PistonFile {
     pub sha1: String,
+    /// Size of file at url
     pub size: u64,
     pub url: String,
     
-    /// 
+    /// (AssetIndex only) The game version ID the assets are for
     pub id: Option<String>,
-    pub total_size: u64,
+    /// (AssetIndex only) The size of the game version's assets
+    pub total_size: Option<u64>,
     
     /// Only present on library files
     pub path: Option<String>,
