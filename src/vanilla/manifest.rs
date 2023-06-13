@@ -21,6 +21,8 @@ pub struct VersionIndex {
     pub time: String,
     #[serde(rename = "releaseTime")]
     pub release_time: String,
+    pub sha1: String,
+    pub compliance_level: u8,
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
