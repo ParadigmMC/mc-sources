@@ -175,23 +175,24 @@ impl PistonRuleMatcher {
         return true;
     }
 
-    pub fn build_args(&self, args: &Vec<PistonArgument>, map: &HashMap<String, String>) -> String {
+    pub fn build_args(&self, args: &Vec<PistonArgument>, map: &HashMap<String, String>) -> Vec<String> {
         let mut list: Vec<String> = vec![];
         for arg in args.iter() {
             match arg {
                 PistonArgument::Normal(str) => list.push(str.to_owned()),
                 PistonArgument::Ruled { rules, value } => {
                     if self.match_rules(rules) {
-                        list.push(match value {
-                            ArgumentValue::Single(v) => v.to_owned(),
-                            ArgumentValue::Many(li) => li.join(" "),
-                        });
+                        match value {
+                            ArgumentValue::Single(v) => list.push(v.to_owned()),
+                            // bad
+                            ArgumentValue::Many(li) => li.iter().for_each(|v| list.push(v.to_owned())),
+                        };
                     }
                 }
             }
         }
 
-        self.process_string(map, &list.join(" "))
+        list.iter().map(|s| self.process_string(map, &s)).collect()
     }
 
     pub fn process_string(&self, map: &HashMap<String, String>, input: &str) -> String {
