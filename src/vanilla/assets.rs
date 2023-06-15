@@ -28,17 +28,17 @@ pub struct MCAsset {
 }
 
 impl MCAsset {
-    pub async fn download(self, client: &reqwest::Client) -> Result<reqwest::Response> {
+    pub async fn download(&self, client: &reqwest::Client) -> Result<reqwest::Response> {
         Ok(client.get(self.get_url()).send().await?)
     }
 
     /// get the url for downloading this asset
-    pub fn get_url(self) -> String {
+    pub fn get_url(&self) -> String {
         RESOURCES_URL.to_owned() + &self.get_path()
     }
 
     /// get the path for this asset - no slashes at beginning or end
-    pub fn get_path(self) -> String {
+    pub fn get_path(&self) -> String {
         self.hash[0..2].to_owned() + "/" + &self.hash
     }
 }

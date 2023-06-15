@@ -74,8 +74,30 @@ pub enum ArgumentValue {
 #[serde(rename_all = "camelCase")]
 pub struct PistonLibrary {
     pub name: String,
-    pub downloads: PistonArtifact,
+    pub downloads: PistonLibraryDownload,
     pub rules: Vec<PistonRule>,
+
+    /// Present on old versions, something like this:
+    /// "extract": {
+    ///     "exclude": ["META-INF/"],
+    ///     "name": "tv.twitch:twitch-external-platform:4.5"
+    /// }
+    pub extract: Option<PistonExtractLibrary>,
+
+    /// Present on old versions, some weird stuff involving classifiers
+    /// "natives": {
+    ///     "linux":   "natives-linux"
+    ///     "osx":     "natives-osx"
+    ///     "windows": "natives-windows-${arch}"
+    /// }
+    pub natives: Option<HashMap<String, String>>
+}
+
+#[derive(Debug, Clone, Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct PistonExtractLibrary {
+    exclude: Vec<String>,
+    name: String,
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
@@ -83,14 +105,14 @@ pub struct PistonLibrary {
 #[serde(tag = "action")]
 pub enum PistonRule {
     Allow(PistonRuleConstraints),
-    Deny(PistonRuleConstraints),
+    Disallow(PistonRuleConstraints),
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct PistonRuleConstraints {
-    pub os: PistonRuleConstraintOS,
-    pub features: HashMap<String, bool>,
+    pub os: Option<PistonOs>,
+    pub features: Option<HashMap<String, bool>>,
 }
 
 /* 
@@ -105,7 +127,7 @@ pub struct PistonRuleConstraintFeature {
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
-pub struct PistonRuleConstraintOS {
+pub struct PistonOs {
     pub name: String,
     pub arch: String,
     pub version: String,
@@ -113,7 +135,7 @@ pub struct PistonRuleConstraintOS {
 
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
-pub struct PistonArtifact {
+pub struct PistonLibraryDownload {
     pub artifact: PistonFile,
 
     /// Conditional files that may be needed to be downloaded alongside the library
