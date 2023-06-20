@@ -1,3 +1,10 @@
+//! API implementation for [PaperMC](https://papermc.io/)
+//! This includes:
+//! - Paper
+//! - Folia
+//! - Velocity (Proxy)
+//! - Waterfall (Proxy)
+
 use crate::Result;
 
 const PAPERMC_URL: &str = "https://api.papermc.io/v2";
@@ -5,7 +12,9 @@ const PAPERMC_URL: &str = "https://api.papermc.io/v2";
 mod structs;
 mod impls;
 pub use structs::*;
+pub use impls::*;
 
+/// Fetch a list of papermc projects (paper, folia, waterfall, velocity)
 pub async fn fetch_papermc_projects(
     client: &reqwest::Client
 ) -> Result<Vec<String>> {
@@ -20,6 +29,7 @@ pub async fn fetch_papermc_projects(
     Ok(projects.projects)
 }
 
+/// Fetch versions of a project
 pub async fn fetch_papermc_project(
     client: &reqwest::Client,
     project_id: &str,

@@ -1,3 +1,6 @@
+//! API implementation of piston-meta (mojang's launcher api)
+//! Contains implementations for fetching versions, downloading, libraries and assets
+
 use std::{env, collections::HashMap};
 
 use os_version::{detect, OsVersion};

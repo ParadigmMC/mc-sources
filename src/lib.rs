@@ -15,7 +15,9 @@ pub use version::{MCVersion, MCVersionReq};
 pub mod vanilla;
 
 pub mod papermc;
+pub mod purpurmc;
 
+/// Possible errors in this library
 #[derive(Error, Debug)]
 pub enum Error {
     #[error("{0} was not found")]
@@ -35,7 +37,7 @@ pub enum Side {
     Client,
 }
 
-/// Utility fn for replacing strings containing ${}
+/// Utility fn for replacing strings containing "${}"
 pub fn dollar_repl<F>(input: &str, replacer: F) -> String
 where F: Fn(&str) -> Option<String> {
     let re = Regex::new(r"\$\{(\w+)?\}").unwrap();
