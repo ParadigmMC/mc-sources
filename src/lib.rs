@@ -1,3 +1,11 @@
+//! mcapi provides api's for various minecraft related projects such as:
+//! - piston-meta, mojang's launcher api
+//! - papermc
+//! - modrinth
+//! - spigot
+//! 
+//! most functions use a reqwest::Client and is async
+
 use regex::Regex;
 use serde::{Deserialize, Serialize};
 use thiserror::Error;

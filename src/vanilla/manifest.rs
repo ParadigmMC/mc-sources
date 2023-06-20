@@ -1,5 +1,6 @@
 use serde::{Deserialize, Serialize};
 
+/// The version manifest, from piston-meta
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct VersionManifest {
     pub latest: LatestVersions,
@@ -12,6 +13,8 @@ pub struct LatestVersions {
     pub snapshot: String,
 }
 
+/// The version info from a manifest's versions list
+/// Use [`Self::fetch()`] to get an [`VersionInfo`] which contains more info about the version
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct VersionIndex {
     pub id: String,

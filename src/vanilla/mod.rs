@@ -13,6 +13,7 @@ pub use crate::vanilla::{manifest::*, version::*, assets::*};
 
 pub const VERSION_MANIFEST_URL: &str = "https://piston-meta.mojang.com/mc/game/version_manifest_v2.json";
 
+/// Fetches the version manifest
 pub async fn fetch_version_manifest(
     client: &reqwest::Client,
 ) -> Result<VersionManifest> {
@@ -68,6 +69,7 @@ impl VersionInfo {
     }
 }
 
+/// PistonRuleMatcher is an utility for matching argument and library rules
 pub struct PistonRuleMatcher {
     pub os: PistonOs,
     pub features: HashMap<String, bool>,
