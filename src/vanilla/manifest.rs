@@ -16,6 +16,7 @@ pub struct LatestVersions {
 /// The version info from a manifest's versions list
 /// Use [`Self::fetch()`] to get an [`VersionInfo`] which contains more info about the version
 #[derive(Debug, Clone, Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct VersionIndex {
     pub id: String,
     #[serde(rename = "type")]
