@@ -98,7 +98,7 @@ impl FromStr for MCVersion {
 impl FromStr for MCVersionReq {
     type Err = Error;
 
-    fn from_str(text: &str) -> Result<Self> {
+    fn from_str(_text: &str) -> Result<Self> {
         todo!()
     }
 }
