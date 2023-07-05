@@ -36,7 +36,7 @@ impl VersionManifest {
     pub fn find(&self, id: &str) -> Option<VersionIndex> {
         self.versions
             .iter()
-            .find(|v| v.id == id).map(|v| v.clone())
+            .find(|v| v.id == id).cloned()
     }
 
     /// Fetch the latest release's VersionInfo
@@ -164,7 +164,7 @@ impl PistonRuleMatcher {
                 }
 
                 if let Some(feats) = &constraint.features {
-                    for (feat, _) in feats {
+                    for feat in feats.keys() {
                         if !self.features.contains_key(feat) || !self.features[feat] {
                             return false;
                         }
@@ -177,10 +177,10 @@ impl PistonRuleMatcher {
             }
         }
 
-        return true;
+        true
     }
 
-    pub fn build_args(&self, args: &Vec<PistonArgument>, map: &HashMap<String, String>) -> Vec<String> {
+    pub fn build_args(&self, args: &[PistonArgument], map: &HashMap<String, String>) -> Vec<String> {
         let mut list: Vec<String> = vec![];
         for arg in args.iter() {
             match arg {
@@ -197,7 +197,7 @@ impl PistonRuleMatcher {
             }
         }
 
-        list.iter().map(|s| self.process_string(map, &s)).collect()
+        list.iter().map(|s| self.process_string(map, s)).collect()
     }
 
     pub fn process_string(&self, map: &HashMap<String, String>, input: &str) -> String {

@@ -72,7 +72,7 @@ impl FromStr for MCVersion {
     type Err = Error;
 
     fn from_str(text: &str) -> Result<Self> {
-        if !text.contains(".") || text.contains("-") || text.contains(" ") {
+        if !text.contains('.') || text.contains('-') || text.contains(' ') {
             Ok(Self {
                 major: 0,
                 minor: 0,
@@ -80,7 +80,7 @@ impl FromStr for MCVersion {
                 extra: text.to_owned(),
             })
         } else {
-            let vec: Vec<&str> = text.split(".").collect();
+            let vec: Vec<&str> = text.split('.').collect();
             if vec.len() < 2 || vec[0] != "1" {
                 return Err(Error::InvalidVersion(text.to_owned()));
             }

@@ -50,7 +50,7 @@ impl PurpurVersionShort {
     }
 
     pub async fn fetch_build(&self, client: &reqwest::Client, build_id: &str) -> Result<PurpurBuild> {
-        fetch_purpur_build(client, &self.version, &build_id).await
+        fetch_purpur_build(client, &self.version, build_id).await
     }
 
     pub async fn download_latest_build(&self, client: &reqwest::Client) -> Result<reqwest::Response> {
