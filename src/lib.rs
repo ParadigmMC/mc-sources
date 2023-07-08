@@ -29,6 +29,8 @@ pub enum Error {
     Request(#[from] reqwest::Error),
     #[error("{0} is an invalid MCVersion")]
     InvalidVersion(String),
+    #[error(transparent)]
+    XML(#[from] roxmltree::Error),
 }
 
 type Result<T> = core::result::Result<T, Error>;

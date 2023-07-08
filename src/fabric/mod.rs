@@ -10,7 +10,7 @@ pub struct FabricVersion {
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct FabricLoader {
-    pub seperator: String,
+    pub separator: String,
     pub build: i64,
     pub maven: String,
     pub version: String,
