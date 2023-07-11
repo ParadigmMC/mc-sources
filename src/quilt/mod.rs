@@ -12,7 +12,7 @@ pub struct QuiltVersion {
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct QuiltLoader {
-    pub seperator: String,
+    pub separator: String,
     pub build: i64,
     pub maven: String,
     pub version: String,
