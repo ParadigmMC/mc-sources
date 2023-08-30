@@ -6,6 +6,7 @@
 //! 
 //! most functions use a reqwest::Client and is async
 
+use lazy_static::lazy_static;
 use regex::Regex;
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
@@ -42,11 +43,14 @@ pub enum Side {
     Client,
 }
 
+lazy_static! {
+    static ref DOLLAR_REGEX: Regex = Regex::new(r"\$\{(\w+)?\}").unwrap();
+}
+
 /// Utility fn for replacing strings containing "${}"
 pub fn dollar_repl<F>(input: &str, replacer: F) -> String
 where F: Fn(&str) -> Option<String> {
-    let re = Regex::new(r"\$\{(\w+)?\}").unwrap();
-    let replaced = re.replace_all(input, |caps: &regex::Captures| {
+    let replaced = DOLLAR_REGEX.replace_all(input, |caps: &regex::Captures| {
         let var_name = caps.get(1).map(|v| v.as_str()).unwrap_or_default();
 
         match replacer(var_name) {
