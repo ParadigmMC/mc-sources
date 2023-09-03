@@ -15,13 +15,13 @@ pub enum HangarError {
     APIError(String),
 }
 
-#[derive(Debug, Serialize, Deserialize, Default)]
+#[derive(Debug, Serialize, Deserialize, Default, Clone)]
 pub struct Namespace {
     pub owner: String,
     pub slug: String,
 }
 
-#[derive(Debug, Serialize, Deserialize, Default)]
+#[derive(Debug, Serialize, Deserialize, Default, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct ProjectStats {
     pub views: i64,
@@ -32,14 +32,14 @@ pub struct ProjectStats {
     pub watchers: i64,
 }
 
-#[derive(Debug, Serialize, Deserialize, Default)]
+#[derive(Debug, Serialize, Deserialize, Default, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct VersionStats {
     pub total_downloads: i64,
     pub platform_downloads: HashMap<Platform, i64>,
 }
 
-#[derive(Debug, Serialize, Deserialize, Default)]
+#[derive(Debug, Serialize, Deserialize, Default, Clone)]
 #[serde(rename_all = "snake_case")]
 pub enum Category {
     AdminTools,
@@ -56,7 +56,7 @@ pub enum Category {
     Undefined,
 }
 
-#[derive(Debug, Serialize, Deserialize, Default)]
+#[derive(Debug, Serialize, Deserialize, Default, Clone)]
 #[serde(rename_all = "snake_case")]
 pub enum Visibility {
     #[default]
@@ -67,7 +67,7 @@ pub enum Visibility {
     SoftDelete,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct Project {
     pub created_at: String,
@@ -81,7 +81,7 @@ pub struct Project {
     pub description: String,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct ProjectSettings {
     pub links: Vec<LinkSection>,
@@ -92,14 +92,14 @@ pub struct ProjectSettings {
     pub donation: ProjectDonation,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct ProjectDonation {
     pub enable: bool,
     pub subject: String,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct ProjectLicense {
     pub name: String,
@@ -108,7 +108,7 @@ pub struct ProjectLicense {
     pub license_type: String,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct LinkSection {
     pub id: i64,
@@ -117,14 +117,14 @@ pub struct LinkSection {
     pub links: Vec<Link>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "UPPERCASE")]
 pub enum LinkType {
     Top,
     Sidebar,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Link {
     pub id: i64,
     pub name: String,
@@ -144,14 +144,14 @@ pub async fn fetch_project(
         .await?)
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Pagination {
     pub limit: i64,
     pub offset: i64,
     pub count: i64,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct ProjectVersion {
     pub created_at: String,
@@ -169,7 +169,7 @@ pub struct ProjectVersion {
     pub platform_dependencies_formatted: HashMap<Platform, String>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct PluginDependency {
     pub name: String,
@@ -178,7 +178,7 @@ pub struct PluginDependency {
     pub platform: Platform,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Hash)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Hash, Clone)]
 #[serde(rename_all = "UPPERCASE")]
 pub enum Platform {
     Paper,
@@ -196,7 +196,7 @@ impl ToString for Platform {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase", untagged)]
 pub enum PlatformVersionDownload {
     Hangar {
@@ -210,7 +210,7 @@ pub enum PlatformVersionDownload {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct FileInfo {
     pub name: String,
@@ -218,7 +218,7 @@ pub struct FileInfo {
     pub sha256_hash: String,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct ProjectChannel {
     pub created_at: String,
     pub name: String,
@@ -227,7 +227,7 @@ pub struct ProjectChannel {
     pub flags: HashSet<ChannelFlag>,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Hash)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Hash, Clone)]
 #[serde(rename_all = "UPPERCASE")]
 pub enum ChannelFlag {
     Frozen,
@@ -236,7 +236,7 @@ pub enum ChannelFlag {
     SendsNotifications,
 }
 
-#[derive(Debug, Serialize, Deserialize, Default)]
+#[derive(Debug, Serialize, Deserialize, Default, Clone)]
 #[serde(rename_all = "UPPERCASE")]
 pub enum PinnedStatus {
     Version,
@@ -245,7 +245,7 @@ pub enum PinnedStatus {
     None,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "snake_case")]
 pub enum ReviewState {
     Unreviewed,
@@ -256,7 +256,7 @@ pub enum ReviewState {
 
 ///
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct VersionsFilter {
     pub limit: i64,
     pub offset: i64,
@@ -277,7 +277,7 @@ impl Default for VersionsFilter {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct ProjectVersionsResponse {
     pub pagination: Pagination,
     pub result: Vec<ProjectVersion>,
