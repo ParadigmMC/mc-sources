@@ -20,6 +20,7 @@ pub mod purpurmc;
 pub mod fabric;
 pub mod quilt;
 pub mod forge;
+pub mod mclogs;
 
 /// Possible errors in this library
 #[derive(Error, Debug)]
