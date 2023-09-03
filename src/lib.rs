@@ -21,6 +21,7 @@ pub mod fabric;
 pub mod quilt;
 pub mod forge;
 pub mod mclogs;
+pub mod hangar;
 
 /// Possible errors in this library
 #[derive(Error, Debug)]
