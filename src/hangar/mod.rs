@@ -1,4 +1,4 @@
-use std::collections::{HashSet, HashMap};
+use std::collections::{HashMap, HashSet};
 
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
@@ -19,6 +19,12 @@ pub enum HangarError {
 pub struct Namespace {
     pub owner: String,
     pub slug: String,
+}
+
+impl ToString for Namespace {
+    fn to_string(&self) -> String {
+        format!("{}/{}", self.owner, self.slug)
+    }
 }
 
 #[derive(Debug, Serialize, Deserialize, Default, Clone)]
@@ -183,7 +189,17 @@ pub struct PluginDependency {
 pub enum Platform {
     Paper,
     Waterfall,
-    Velocity
+    Velocity,
+}
+
+impl From<&str> for Platform {
+    fn from(value: &str) -> Self {
+        match value.to_lowercase().as_str() {
+            "waterfall" => Self::Waterfall,
+            "velocity" => Self::Velocity,
+            _ => Self::Paper,
+        }
+    }
 }
 
 impl ToString for Platform {
@@ -199,14 +215,31 @@ impl ToString for Platform {
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase", untagged)]
 pub enum PlatformVersionDownload {
+    #[serde(rename_all = "camelCase")]
     Hangar {
         file_info: FileInfo,
         download_url: String,
     },
 
+    #[serde(rename_all = "camelCase")]
     External {
         file_info: FileInfo,
         external_url: String,
+    },
+}
+
+impl PlatformVersionDownload {
+    pub fn get_url(&self) -> String {
+        match self.clone() {
+            Self::Hangar { download_url, .. } => download_url,
+            Self::External { external_url, .. } => external_url,
+        }
+    }
+
+    pub fn get_file_info(&self) -> FileInfo {
+        match self.clone() {
+            Self::Hangar { file_info, .. } | Self::External { file_info, .. } => file_info,
+        }
     }
 }
 
@@ -219,16 +252,17 @@ pub struct FileInfo {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
+#[serde(rename_all = "camelCase")]
 pub struct ProjectChannel {
     pub created_at: String,
     pub name: String,
-    pub description: String,
+    pub description: Option<String>,
     pub color: String,
     pub flags: HashSet<ChannelFlag>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Hash, Clone)]
-#[serde(rename_all = "UPPERCASE")]
+#[serde(rename_all = "SCREAMING_SNAKE_CASE")]
 pub enum ChannelFlag {
     Frozen,
     Unstable,
@@ -261,7 +295,7 @@ pub struct VersionsFilter {
     pub limit: i64,
     pub offset: i64,
     pub channel: Option<String>,
-    pub platform: Option<String>,
+    pub platform: Option<Platform>,
     pub platform_version: Option<String>,
 }
 
@@ -291,7 +325,9 @@ pub async fn fetch_project_versions(
     let filter = filter.unwrap_or_default();
 
     Ok(http_client
-        .get(format!("{API_V1}/projects/{id}/versions"))
+        .get(format!("{API_V1}/projects/{}/versions", if id.contains('/') {
+            id.split_once('/').unwrap().1
+        } else { id }))
         .query(&filter)
         .send()
         .await?
@@ -306,7 +342,9 @@ pub async fn fetch_project_version(
     name: &str,
 ) -> Result<ProjectVersion, HangarError> {
     Ok(http_client
-        .get(format!("{API_V1}/projects/{id}/versions/{name}"))
+        .get(format!("{API_V1}/projects/{}/versions/{name}", if id.contains('/') {
+            id.split_once('/').unwrap().1
+        } else { id }))
         .send()
         .await?
         .error_for_status()?
@@ -349,7 +387,10 @@ pub async fn download_project_version(
     platform: &Platform,
 ) -> Result<reqwest::Response, HangarError> {
     Ok(http_client
-        .get(format!("{API_V1}/projects/{id}/versions/{name}/{}/download", platform.to_string()))
+        .get(format!(
+            "{API_V1}/projects/{id}/versions/{name}/{}/download",
+            platform.to_string()
+        ))
         .send()
         .await?
         .error_for_status()?)
