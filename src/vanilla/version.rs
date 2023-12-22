@@ -102,7 +102,7 @@ pub struct PistonLibrary {
 #[serde(rename_all = "camelCase")]
 pub struct PistonExtractLibrary {
     exclude: Vec<String>,
-    name: String,
+    name: Option<String>,
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
