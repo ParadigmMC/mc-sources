@@ -9,15 +9,12 @@ use crate::Result;
 
 const PAPERMC_URL: &str = "https://api.papermc.io/v2";
 
-mod structs;
 mod impls;
+mod structs;
 pub use structs::*;
-pub use impls::*;
 
 /// Fetch a list of papermc projects (paper, folia, waterfall, velocity)
-pub async fn fetch_papermc_projects(
-    client: &reqwest::Client
-) -> Result<Vec<String>> {
+pub async fn fetch_papermc_projects(client: &reqwest::Client) -> Result<Vec<String>> {
     let projects: PaperProjectsResponse = client
         .get(PAPERMC_URL.to_owned() + "/projects")
         .send()
@@ -35,7 +32,7 @@ pub async fn fetch_papermc_project(
     project_id: &str,
 ) -> Result<PaperProject> {
     let project: PaperProject = client
-        .get(PAPERMC_URL.to_owned() + "/projects/" + project_id)
+        .get(format!("{PAPERMC_URL}/projects/{project_id}"))
         .send()
         .await?
         .error_for_status()?
@@ -51,7 +48,9 @@ pub async fn fetch_papermc_version(
     version: &str,
 ) -> Result<PaperVersion> {
     let version_response: PaperVersion = client
-        .get(PAPERMC_URL.to_owned() + "/projects/" + project_id + "/versions/" + version)
+        .get(format!(
+            "{PAPERMC_URL}/projects/{project_id}/versions/{version}"
+        ))
         .send()
         .await?
         .error_for_status()?
@@ -67,7 +66,9 @@ pub async fn fetch_papermc_builds(
     version: &str,
 ) -> Result<PaperBuildsResponse> {
     let builds: PaperBuildsResponse = client
-        .get(PAPERMC_URL.to_owned() + "/projects/" + project_id + "/versions/" + version + "/builds")
+        .get(format!(
+            "{PAPERMC_URL}/projects/{project_id}/versions/{version}/builds"
+        ))
         .send()
         .await?
         .error_for_status()?
@@ -84,7 +85,9 @@ pub async fn fetch_papermc_build(
     build_id: i32,
 ) -> Result<PaperBuild> {
     let build: PaperBuild = client
-        .get(PAPERMC_URL.to_owned() + "/projects/" + project_id + "/versions/" + version + "/builds/" + &build_id.to_string())
+        .get(format!(
+            "{PAPERMC_URL}/projects/{project_id}/versions/{version}/builds/{build_id}"
+        ))
         .send()
         .await?
         .error_for_status()?
@@ -102,7 +105,9 @@ pub async fn download_papermc_build(
     download_id: &str,
 ) -> Result<reqwest::Response> {
     Ok(client
-        .get(PAPERMC_URL.to_owned() + "/projects/" + project_id + "/versions/" + version + "/builds/" + &build_id.to_string() + "/downloads/" + download_id)
+        .get(
+            format!("{PAPERMC_URL}/projects/{project_id}/versions/{version}/builds/{build_id}/downloads/{download_id}")
+        )
         .send()
         .await?
         .error_for_status()?)
@@ -114,7 +119,9 @@ pub async fn fetch_papermc_version_group(
     family_id: &str,
 ) -> Result<PaperVersionFamily> {
     let family: PaperVersionFamily = client
-        .get(PAPERMC_URL.to_owned() + "/projects/" + project_id + "/version_group/" + family_id)
+        .get(format!(
+            "{PAPERMC_URL}/projects/{project_id}/version_group/{family_id}"
+        ))
         .send()
         .await?
         .error_for_status()?
@@ -130,7 +137,9 @@ pub async fn fetch_papermc_version_group_builds(
     family_id: &str,
 ) -> Result<PaperVersionFamilyBuildsResponse> {
     let builds: PaperVersionFamilyBuildsResponse = client
-        .get(PAPERMC_URL.to_owned() + "/projects/" + project_id + "/version_group/" + family_id + "/builds")
+        .get(format!(
+            "{PAPERMC_URL}/projects/{project_id}/version_group/{family_id}/builds"
+        ))
         .send()
         .await?
         .error_for_status()?

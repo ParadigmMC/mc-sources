@@ -3,8 +3,8 @@
 //! - papermc
 //! - modrinth
 //! - spigot
-//! 
-//! most functions use a reqwest::Client and is async
+//!
+//! most functions use a `reqwest::Client` and are async
 
 use lazy_static::lazy_static;
 use regex::Regex;
@@ -15,13 +15,13 @@ pub mod version;
 pub use version::{MCVersion, MCVersionReq};
 pub mod vanilla;
 
+pub mod fabric;
+pub mod forge;
+pub mod hangar;
+pub mod mclogs;
 pub mod papermc;
 pub mod purpurmc;
-pub mod fabric;
 pub mod quilt;
-pub mod forge;
-pub mod mclogs;
-pub mod hangar;
 
 /// Possible errors in this library
 #[derive(Error, Debug)]
@@ -32,6 +32,8 @@ pub enum Error {
     Request(#[from] reqwest::Error),
     #[error("{0} is an invalid MCVersion")]
     InvalidVersion(String),
+    #[error(transparent)]
+    Regex(#[from] regex::Error),
     #[error(transparent)]
     XML(#[from] roxmltree::Error),
 }
@@ -51,15 +53,18 @@ lazy_static! {
 
 /// Utility fn for replacing strings containing "${}"
 pub fn dollar_repl<F>(input: &str, replacer: F) -> String
-where F: Fn(&str) -> Option<String> {
-    let replaced = DOLLAR_REGEX.replace_all(input, |caps: &regex::Captures| {
-        let var_name = caps.get(1).map(|v| v.as_str()).unwrap_or_default();
+where
+    F: Fn(&str) -> Option<String>,
+{
+    DOLLAR_REGEX
+        .replace_all(input, |caps: &regex::Captures| {
+            let var_name = caps.get(1).map(|v| v.as_str()).unwrap_or_default();
 
-        match replacer(var_name) {
-            Some(v) => v,
-            None => format!("${{{var_name}}}"),
-        }
-    });
-    replaced.into_owned()
+            if let Some(v) = replacer(var_name) {
+                v
+            } else {
+                format!("${{{var_name}}}")
+            }
+        })
+        .into_owned()
 }
-

@@ -21,19 +21,33 @@ impl MCVersionReq {
         comparators: Vec::new(),
     };
 
+    #[must_use]
     pub fn matches(&self, version: &MCVersion) -> bool {
         self.comparators.iter().all(|cmp| cmp.matches(version))
     }
 }
 
 impl Comparator {
+    #[must_use]
     pub fn matches(&self, version: &MCVersion) -> bool {
         match self.op {
             Op::Exact => self.major == version.major && self.minor == version.minor,
-            Op::Greater => self.major < version.major || (self.major == version.major && self.minor < version.minor),
-            Op::GreaterEq => self.major <= version.major || (self.major == version.major && self.minor <= version.minor),
-            Op::Less => self.major > version.major || (self.major == version.major && self.minor > version.minor),
-            Op::LessEq => self.major >= version.major || (self.major == version.major && self.minor >= version.minor),
+            Op::Greater => {
+                self.major < version.major
+                    || (self.major == version.major && self.minor < version.minor)
+            }
+            Op::GreaterEq => {
+                self.major <= version.major
+                    || (self.major == version.major && self.minor <= version.minor)
+            }
+            Op::Less => {
+                self.major > version.major
+                    || (self.major == version.major && self.minor > version.minor)
+            }
+            Op::LessEq => {
+                self.major >= version.major
+                    || (self.major == version.major && self.minor >= version.minor)
+            }
             Op::Wildcard => true,
         }
     }
@@ -63,8 +77,14 @@ pub enum Op {
 }
 
 impl MCVersion {
+    #[must_use]
     pub fn new(major: u8, minor: u8) -> Self {
-        Self { major, minor, is_release: true, extra: String::new() }
+        Self {
+            major,
+            minor,
+            is_release: true,
+            extra: String::new(),
+        }
     }
 }
 
@@ -93,7 +113,6 @@ impl FromStr for MCVersion {
         }
     }
 }
-
 
 impl FromStr for MCVersionReq {
     type Err = Error;
