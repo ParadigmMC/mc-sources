@@ -18,7 +18,7 @@ pub struct VersionInfo {
 
     pub arguments: VersionArguments,
     pub minecraft_arguments: String,
-    
+
     pub compliance_level: u8,
     pub minimum_launcher_version: u8,
 
@@ -95,7 +95,7 @@ pub struct PistonLibrary {
     ///     "osx":     "natives-osx"
     ///     "windows": "natives-windows-${arch}"
     /// }
-    pub natives: Option<HashMap<String, String>>
+    pub natives: Option<HashMap<String, String>>,
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
@@ -121,7 +121,7 @@ pub struct PistonRuleConstraints {
     pub features: Option<HashMap<String, bool>>,
 }
 
-/* 
+/*
 #[derive(Debug, Clone, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct PistonRuleConstraintFeature {
@@ -139,7 +139,6 @@ pub struct PistonOs {
     pub arch: String,
     pub version: String,
 }
-
 
 #[derive(Debug, Clone, Deserialize, Serialize, Default)]
 #[serde(default)]
@@ -166,7 +165,6 @@ pub struct VersionLoggingInfo {
     pub logging_type: String,
 }
 
-
 #[derive(Debug, Clone, Deserialize, Serialize, Default)]
 #[serde(default)]
 #[serde(rename_all = "camelCase")]
@@ -175,12 +173,12 @@ pub struct PistonFile {
     /// Size of file at url
     pub size: u64,
     pub url: String,
-    
+
     /// (AssetIndex only) The game version ID the assets are for
     pub id: Option<String>,
     /// (AssetIndex only) The size of the game version's assets
     pub total_size: Option<u64>,
-    
+
     /// Only present on library files
     pub path: Option<String>,
 }

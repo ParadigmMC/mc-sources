@@ -1,11 +1,20 @@
+#[allow(clippy::wildcard_imports)]
 use super::*;
 
 impl PaperProject {
-    pub async fn fetch_version(self, client: &reqwest::Client, version: &str) -> Result<PaperVersion> {
+    pub async fn fetch_version(
+        self,
+        client: &reqwest::Client,
+        version: &str,
+    ) -> Result<PaperVersion> {
         fetch_papermc_version(client, &self.project_id, version).await
     }
 
-    pub async fn fetch_version_group(self, client: &reqwest::Client, version_group: &str) -> Result<PaperVersionFamily> {
+    pub async fn fetch_version_group(
+        self,
+        client: &reqwest::Client,
+        version_group: &str,
+    ) -> Result<PaperVersionFamily> {
         fetch_papermc_version_group(client, &self.project_id, version_group).await
     }
 }

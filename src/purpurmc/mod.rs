@@ -1,10 +1,10 @@
 //! API implementation for [PurpurMC](https://purpurmc.org/)
 
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
-use crate::{Result, Error};
+use crate::{Error, Result};
 
-pub static PURPURMC_URL: &str = "https://api.purpurmc.org/v2";
+pub const PURPURMC_URL: &str = "https://api.purpurmc.org/v2";
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct PurpurVersion {
@@ -14,22 +14,34 @@ pub struct PurpurVersion {
 }
 
 impl PurpurVersion {
+    #[must_use]
     pub fn get_latest_build(&self) -> PurpurBuild {
         self.builds.latest.clone()
     }
 
+    #[must_use]
     pub fn get_build(&self, build_id: &str) -> Option<&PurpurBuild> {
         self.builds.all.iter().find(|b| b.build == build_id)
     }
 
-    pub async fn download_latest_build(&self, client: &reqwest::Client) -> Result<reqwest::Response> {
+    pub async fn download_latest_build(
+        &self,
+        client: &reqwest::Client,
+    ) -> Result<reqwest::Response> {
         self.get_latest_build().download(client).await
     }
 
-    pub async fn download_build(&self, client: &reqwest::Client, build_id: &str) -> Result<reqwest::Response> {
-        self.get_build(build_id).ok_or_else(|| Error::NotFound(
-            "PurpurMC ver:".to_owned() + &self.version + " build:" + build_id
-        ))?.download(client).await
+    pub async fn download_build(
+        &self,
+        client: &reqwest::Client,
+        build_id: &str,
+    ) -> Result<reqwest::Response> {
+        self.get_build(build_id)
+            .ok_or_else(|| {
+                Error::NotFound(format!("PurpurMC ver: {} build: {build_id}", self.version))
+            })?
+            .download(client)
+            .await
     }
 }
 
@@ -41,24 +53,42 @@ pub struct PurpurVersionShort {
 }
 
 impl PurpurVersionShort {
+    #[must_use]
     pub fn get_latest_build_id(&self) -> String {
-        self.builds.latest.to_owned()
+        self.builds.latest.clone()
     }
 
     pub async fn fetch_latest_build(&self, client: &reqwest::Client) -> Result<PurpurBuild> {
         fetch_purpur_build(client, &self.version, &self.get_latest_build_id()).await
     }
 
-    pub async fn fetch_build(&self, client: &reqwest::Client, build_id: &str) -> Result<PurpurBuild> {
+    pub async fn fetch_build(
+        &self,
+        client: &reqwest::Client,
+        build_id: &str,
+    ) -> Result<PurpurBuild> {
         fetch_purpur_build(client, &self.version, build_id).await
     }
 
-    pub async fn download_latest_build(&self, client: &reqwest::Client) -> Result<reqwest::Response> {
-        self.fetch_latest_build(client).await?.download(client).await
+    pub async fn download_latest_build(
+        &self,
+        client: &reqwest::Client,
+    ) -> Result<reqwest::Response> {
+        self.fetch_latest_build(client)
+            .await?
+            .download(client)
+            .await
     }
 
-    pub async fn download_build(&self, client: &reqwest::Client, build_id: &str) -> Result<reqwest::Response> {
-        self.fetch_build(client, build_id).await?.download(client).await
+    pub async fn download_build(
+        &self,
+        client: &reqwest::Client,
+        build_id: &str,
+    ) -> Result<reqwest::Response> {
+        self.fetch_build(client, build_id)
+            .await?
+            .download(client)
+            .await
     }
 }
 
@@ -97,71 +127,57 @@ pub struct PurpurCommit {
 
 /// Fetch a list of purpurmc versions
 pub async fn fetch_purpur_versions(client: &reqwest::Client) -> Result<Vec<String>> {
-    let list: Vec<String> = client
+    Ok(client
         .get(PURPURMC_URL.to_owned() + "/purpur")
         .send()
         .await?
         .error_for_status()?
-        .json::<serde_json::Value>()
-        .await?["versions"]
-            .as_array()
-            .unwrap()
-            .iter()
-            .map(|v| v.as_str().unwrap().to_owned())
-            .collect();
-
-    Ok(list)
+        .json::<Vec<String>>()
+        .await?)
 }
 
 /// Fetch the builds of a Purpur version
 /// Use [`fetch_purpur_version_short()`] to get only the id's of the builds
 pub async fn fetch_purpur_version(
     client: &reqwest::Client,
-    version: &str
+    version: &str,
 ) -> Result<PurpurVersion> {
-    let ver: PurpurVersion = client
-        .get(PURPURMC_URL.to_owned() + "/purpur/" + version + "?detailed=true")
+    Ok(client
+        .get(format!("{PURPURMC_URL}/purpur/{version}?detailed=true"))
         .send()
         .await?
         .error_for_status()?
         .json()
-        .await?;
-
-    Ok(ver)
+        .await?)
 }
 
 /// Use [`fetch_purpur_version()`] for a more detailed response
-/// Returns the build id's in the response instead of PurpurBuild structs
+/// Returns the build id's in the response instead of `PurpurBuild` structs
 pub async fn fetch_purpur_version_short(
     client: &reqwest::Client,
-    version: &str
+    version: &str,
 ) -> Result<PurpurVersionShort> {
-    let ver: PurpurVersionShort = client
-        .get(PURPURMC_URL.to_owned() + "/purpur/" + version)
+    Ok(client
+        .get(format!("{PURPURMC_URL}/purpur/{version}"))
         .send()
         .await?
         .error_for_status()?
         .json()
-        .await?;
-
-    Ok(ver)
+        .await?)
 }
-
 
 pub async fn fetch_purpur_build(
     client: &reqwest::Client,
     version: &str,
     build_id: &str,
 ) -> Result<PurpurBuild> {
-    let build: PurpurBuild = client
-        .get(PURPURMC_URL.to_owned() + "/purpur/" + version + "/" + build_id)
+    Ok(client
+        .get(format!("{PURPURMC_URL}/purpur/{version}/{build_id}"))
         .send()
         .await?
         .error_for_status()?
         .json()
-        .await?;
-
-    Ok(build)
+        .await?)
 }
 
 pub async fn download_purpur_build(
@@ -170,7 +186,9 @@ pub async fn download_purpur_build(
     build_id: &str,
 ) -> Result<reqwest::Response> {
     Ok(client
-        .get(PURPURMC_URL.to_owned() + "/purpur/" + version + "/" + build_id + "/download")
+        .get(format!(
+            "{PURPURMC_URL}/purpur/{version}/{build_id}/download"
+        ))
         .send()
         .await?
         .error_for_status()?)

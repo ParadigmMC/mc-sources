@@ -9,8 +9,6 @@ const API_V1: &str = "https://hangar.papermc.io/api/v1";
 pub enum HangarError {
     #[error(transparent)]
     Request(#[from] reqwest::Error),
-    #[error(transparent)]
-    JSON(#[from] serde_json::Error),
     #[error("{0}")]
     APIError(String),
 }
@@ -229,6 +227,7 @@ pub enum PlatformVersionDownload {
 }
 
 impl PlatformVersionDownload {
+    #[must_use]
     pub fn get_url(&self) -> String {
         match self.clone() {
             Self::Hangar { download_url, .. } => download_url,
@@ -236,6 +235,7 @@ impl PlatformVersionDownload {
         }
     }
 
+    #[must_use]
     pub fn get_file_info(&self) -> FileInfo {
         match self.clone() {
             Self::Hangar { file_info, .. } | Self::External { file_info, .. } => file_info,
@@ -325,9 +325,14 @@ pub async fn fetch_project_versions(
     let filter = filter.unwrap_or_default();
 
     Ok(http_client
-        .get(format!("{API_V1}/projects/{}/versions", if id.contains('/') {
-            id.split_once('/').unwrap().1
-        } else { id }))
+        .get(format!(
+            "{API_V1}/projects/{}/versions",
+            if let Some((_, post)) = id.split_once('/') {
+                post
+            } else {
+                id
+            }
+        ))
         .query(&filter)
         .send()
         .await?
@@ -342,9 +347,14 @@ pub async fn fetch_project_version(
     name: &str,
 ) -> Result<ProjectVersion, HangarError> {
     Ok(http_client
-        .get(format!("{API_V1}/projects/{}/versions/{name}", if id.contains('/') {
-            id.split_once('/').unwrap().1
-        } else { id }))
+        .get(format!(
+            "{API_V1}/projects/{}/versions/{name}",
+            if let Some((_, post)) = id.split_once('/') {
+                post
+            } else {
+                id
+            }
+        ))
         .send()
         .await?
         .error_for_status()?

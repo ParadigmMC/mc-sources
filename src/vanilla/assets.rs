@@ -1,10 +1,10 @@
 use std::collections::HashMap;
 
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
 use crate::Result;
 
-pub const RESOURCES_URL: &str = "https://resources.download.minecraft.net/";
+pub const RESOURCES_URL: &str = "https://resources.download.minecraft.net";
 
 #[derive(Debug, Serialize, Deserialize, Default)]
 pub struct MCAssetIndex {
@@ -20,15 +20,21 @@ pub struct MCAsset {
 
 impl MCAsset {
     pub async fn download(&self, client: &reqwest::Client) -> Result<reqwest::Response> {
-        Ok(client.get(self.get_url()).send().await?)
+        Ok(client
+            .get(self.get_url())
+            .send()
+            .await?
+            .error_for_status()?)
     }
 
     /// get the url for downloading this asset
+    #[must_use]
     pub fn get_url(&self) -> String {
-        RESOURCES_URL.to_owned() + &self.get_path()
+        format!("{RESOURCES_URL}/{}", self.get_path())
     }
 
     /// get the path for this asset - no slashes at beginning or end
+    #[must_use]
     pub fn get_path(&self) -> String {
         self.hash[0..2].to_owned() + "/" + &self.hash
     }

@@ -42,7 +42,7 @@ pub struct PaperBuildsResponse {
     pub project_id: String,
     pub project_name: String,
     pub version: String,
-    pub builds: Vec<PaperVersionBuild>
+    pub builds: Vec<PaperVersionBuild>,
 }
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
@@ -88,7 +88,7 @@ pub struct PaperVersionFamilyBuildsResponse {
     pub project_name: String,
     pub version_group: String,
     pub versions: Vec<String>,
-    pub builds: Vec<PaperVersionFamilyBuild>
+    pub builds: Vec<PaperVersionFamilyBuild>,
 }
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
@@ -101,4 +101,3 @@ pub struct PaperVersionFamilyBuild {
     pub changes: Vec<PaperChange>,
     pub downloads: HashMap<String, PaperDownload>,
 }
-

@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use reqwest::header::{CONTENT_TYPE, HeaderValue};
+use reqwest::header::{HeaderValue, CONTENT_TYPE};
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
 
@@ -28,17 +28,22 @@ impl LogFileMetadata {
         fetch_raw_log(http_client, &self.id).await
     }
 
-    pub async fn fetch_insights(&self, http_client: &reqwest::Client) -> Result<LogInsights, MCLogsError> {
+    pub async fn fetch_insights(
+        &self,
+        http_client: &reqwest::Client,
+    ) -> Result<LogInsights, MCLogsError> {
         fetch_insights(http_client, &self.id).await
     }
 }
 
-pub async fn post_log(http_client: &reqwest::Client, content: &str) -> Result<LogFileMetadata, MCLogsError> {
-    let params = HashMap::from([
-        ("content", content)
-    ]);
+pub async fn post_log(
+    http_client: &reqwest::Client,
+    content: &str,
+) -> Result<LogFileMetadata, MCLogsError> {
+    let params = HashMap::from([("content", content)]);
 
-    let json = http_client.post(format!("{API_V1}/log"))
+    let json = http_client
+        .post(format!("{API_V1}/log"))
         .form(&params)
         .send()
         .await?
@@ -47,38 +52,44 @@ pub async fn post_log(http_client: &reqwest::Client, content: &str) -> Result<Lo
         .await?;
 
     let Some(b) = json.get("success") else {
-        return Err(MCLogsError::APIError("'success' field not in response".to_owned()));
+        return Err(MCLogsError::APIError(
+            "'success' field not in response".to_owned(),
+        ));
     };
 
     match b.as_bool() {
         Some(true) => Ok(serde_json::from_value(json)?),
         Some(false) => Err(MCLogsError::APIError(
             json.get("error")
-            .map(|e| e.as_str().unwrap_or("unknown error"))
-            .unwrap_or("unknown error")
-            .to_owned())),
-        None => Err(MCLogsError::APIError("'success' field in response was not a bool".to_owned()))
+                .and_then(|e| e.as_str())
+                .unwrap_or("unknown error")
+                .to_owned(),
+        )),
+        None => Err(MCLogsError::APIError(
+            "'success' field in response was not a bool".to_owned(),
+        )),
     }
 }
 
 pub async fn fetch_raw_log(http_client: &reqwest::Client, id: &str) -> Result<String, MCLogsError> {
-    let response = http_client.get(format!("{API_V1}/raw/{id}"))
+    let response = http_client
+        .get(format!("{API_V1}/raw/{id}"))
         .send()
         .await?
         .error_for_status()?;
 
     let content_type = response.headers().get(CONTENT_TYPE).cloned();
 
-    let text = response
-        .text()
-        .await?;
+    let text = response.text().await?;
 
     if content_type == Some(HeaderValue::from_static("application/json")) {
         let json = serde_json::from_str::<serde_json::Value>(&text)?;
         let message = json
-            .get("error").map(|e| e.as_str().unwrap_or("unknown error")).unwrap_or("unknown error");
+            .get("error")
+            .and_then(|e| e.as_str())
+            .unwrap_or("unknown error");
 
-        return Err(MCLogsError::APIError(message.to_owned()))
+        return Err(MCLogsError::APIError(message.to_owned()));
     }
 
     Ok(text)
@@ -137,8 +148,12 @@ pub struct Solution {
     pub message: String,
 }
 
-pub async fn fetch_insights(http_client: &reqwest::Client, id: &str) -> Result<LogInsights, MCLogsError> {
-    let json = http_client.get(format!("{API_V1}/insights/{id}"))
+pub async fn fetch_insights(
+    http_client: &reqwest::Client,
+    id: &str,
+) -> Result<LogInsights, MCLogsError> {
+    let json = http_client
+        .get(format!("{API_V1}/insights/{id}"))
         .send()
         .await?
         .error_for_status()?
@@ -149,8 +164,9 @@ pub async fn fetch_insights(http_client: &reqwest::Client, id: &str) -> Result<L
         Some(true) | None => Ok(serde_json::from_value(json)?),
         Some(false) => Err(MCLogsError::APIError(
             json.get("error")
-            .map(|e| e.as_str().unwrap_or("unknown error"))
-            .unwrap_or("unknown error")
-            .to_owned())),
+                .and_then(|e| e.as_str())
+                .unwrap_or("unknown error")
+                .to_owned(),
+        )),
     }
 }
